@@ -30,6 +30,7 @@ ok
 3> ets_cache:set(test_key, 1).
 ok
 4> ets_cache:get(test_key).
+1
 ```
 
 其他可以看test/ets_cache_tests.erl
