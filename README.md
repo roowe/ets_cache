@@ -11,6 +11,15 @@ erlang游戏服务器使用的cache模块
 2. 并发读/写，从而会有资源竞争
 3. 自动从mnesia读
 
+安装
+--------
+
+在你的`rebar.config`添加:
+
+    {reloader, ".*", {git, "https://github.com/roowe/reloader", "master"}}
+
+之后执行 `rebar get-deps`接着 `rebar compile`.
+
 用法
 --------
 ```erlang
@@ -27,4 +36,4 @@ ok
 
 单元测试
 --------
-        rebar eunit
+`rebar eunit`
