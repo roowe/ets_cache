@@ -16,7 +16,7 @@ erlang游戏服务器使用的cache模块
 
 在你的`rebar.config`添加:
 
-    {reloader, ".*", {git, "https://github.com/roowe/ets_cache", "master"}}
+    {ets_cache, ".*", {git, "https://github.com/roowe/ets_cache", "master"}}
 
 之后执行 `rebar get-deps`接着 `rebar compile`.
 
