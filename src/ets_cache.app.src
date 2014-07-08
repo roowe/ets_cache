@@ -1,0 +1,15 @@
+% -*- mode: erlang -*-
+{application, ets_cache,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { ets_cache_app, []}},
+  {env, [
+         {clean_interval, 600}
+        ]}
+ ]}.
