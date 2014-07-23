@@ -10,7 +10,7 @@
 
 
 -export([
-         set/2, set/3,
+         set/2, set/3, set_inf/2,
          get/1, get/2, get_with_default/2,
          del/1
         ]).
@@ -24,6 +24,9 @@
 
 set(Key, Value) ->
     set(Key, Value, ?DEFAULT_EXPIRATION).
+
+set_inf(Key, Value) ->
+    set(Key, Value, infinity).
 
 set(Key, Value, Expiration) 
   when is_integer(Expiration)->
