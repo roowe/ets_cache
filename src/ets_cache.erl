@@ -38,7 +38,7 @@ set(Key, Value, infinity) ->
     ok.
 
 get(Table, Key) ->
-    case cache_misc:get({Table, Key}) of
+    case ?MODULE:get({Table, Key}) of
         [] ->
             get_from_mnesia(Table, Key);
         Val ->
