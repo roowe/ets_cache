@@ -5,11 +5,13 @@ erlang游戏服务器使用的cache模块
 --------
 查看其他玩家数据（热点玩家的数据想活跃在内存，能加速访问，冷的玩家被访问之后，过了TTL之后，会自动从内存清除）或者binary编译出来的关键字MP要找个共享地方存，从而有这样的一个模块，本身就一个项目在用，后来多个项目一起用，复制粘帖太麻烦了，就独立出来，欢迎fork。
 
+update Tue Aug 19 15:30:50 2014
+本来，这个模块只打算存小规模（几万条，甚至峰值也就十万多规模）的数据，所以最初设计就是一张ETS搞定，但是随着项目比较重度使用这个模块（预计长度会超百万），怕一张ETS表清理比较耗时，而且不同业务对清理的时间间隔要求也不一样，有些频率会稍微高点。所以重构代码，支持多表，开多进程去维护各自的TTL。接口向下兼容，新增了set_t、new_cache_table等函数，废弃老的get/2的接口，老的设计这个接口是自动去mnesia取数据，业务层可以使用get_with_default这个更通用的接口替换get/2，但是又新增了get/2，这个是传自己的cache表名和key。
+
 功能
 --------
-1. time to live 定时清理，ets_cache_manager负责，默认是10分钟，可以通过application的env配置
+1. time to live 定时清理，ets_cache_manager负责，默认是5分钟，可以通过application的env配置
 2. 并发读/写，从而会有资源竞争
-3. 自动从mnesia读
 
 安装
 --------
@@ -25,11 +27,17 @@ erlang游戏服务器使用的cache模块
 ```erlang
 1> application:start(ets_cache).
 ok
-2> ets_cache:get(test_key).
+2> ets_cache:new_cache_table(test_cache_table, 2).
+{ok,<0.47.0>}
+3> ets_cache:get(test_key).
 []
-3> ets_cache:set(test_key, 1).
+4> ets_cache:set(test_key, 1).
 ok
-4> ets_cache:get(test_key).
+5> ets_cache:get(test_key).
+1
+6> ets_cache:set_t(test_cache_table, test_key, 1).
+ok
+7> ets_cache:get(test_cache_table, test_key).
 1
 ```
 

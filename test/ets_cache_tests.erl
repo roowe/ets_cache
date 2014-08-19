@@ -5,12 +5,13 @@
 start() ->
     application:load(ets_cache),
     ok = application:set_env(ets_cache, clean_interval, 1),
-    application:start(ets_cache).
+    application:start(ets_cache),
+    ets_cache:new_cache_table(test_cache_table, 2).
 
-%% 由于get_from_mnesia是内部使用，要单元测试就要启动mnesia，这里就不做这个函数的单元测试
 all_test_() ->
     start(),
-    [get_and_set(), ttl_die(), ttl_live(), get_with_default()].
+    [get_and_set(), ttl_die(), ttl_live(), get_with_default(),
+     get_and_set2(), ttl_die2(), ttl_live2(), get_with_default2()].
 
 get_and_set() ->
     [?_assertEqual([], ets_cache:get(test_key)),
@@ -26,8 +27,8 @@ ttl_die() ->
     [?_assertEqual([], ets_cache:get(ttl_die_key))].
 
 ttl_live() ->
-    ets_cache:set(ttl_live_key, 1, 1),
-    [?_assertEqual(1, ets_cache:get(ttl_live_key))].
+    [?_assertEqual(ok, ets_cache:set(ttl_live_key, 1, 1)),
+     ?_assertEqual(1, ets_cache:get(ttl_live_key))].
 
 get_with_default() ->
     F = fun() ->
@@ -35,3 +36,28 @@ get_with_default() ->
         end,
    [?_assertEqual(1, ets_cache:get_with_default(get_with_default, F)),
     ?_assertEqual(1, ets_cache:get(get_with_default))].
+
+
+get_and_set2() ->
+    [?_assertEqual([], ets_cache:get(test_cache_table, test_key)),
+     ?_assertEqual(ok, ets_cache:set_t(test_cache_table, test_key, 1)),
+     ?_assertEqual(1, ets_cache:get(test_cache_table, test_key)),
+     ?_assertEqual(ok, ets_cache:del(test_cache_table, test_key)),
+     ?_assertEqual([], ets_cache:get(test_cache_table, test_key))
+    ].
+
+ttl_die2() ->
+    ets_cache:set_t(test_cache_table, ttl_die_key, 1, 1),
+    timer:sleep(2100),
+    [?_assertEqual([], ets_cache:get(test_cache_table, ttl_die_key))].
+
+ttl_live2() ->    
+    [?_assertEqual(ok, ets_cache:set_t(test_cache_table, ttl_live_key, 1, 1)),
+     ?_assertEqual(1, ets_cache:get(test_cache_table, ttl_live_key))].
+
+get_with_default2() ->
+    F = fun() ->
+                {expiration, 1, 600}
+        end,
+   [?_assertEqual(1, ets_cache:get_with_default(test_cache_table, get_with_default, F)),
+    ?_assertEqual(1, ets_cache:get(test_cache_table, get_with_default))].

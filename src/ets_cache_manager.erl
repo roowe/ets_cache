@@ -4,7 +4,7 @@
 -include("ets_cache.hrl").
 
 -export([
-         start_link/0
+         start_link/2
         ]).
 -export([
          init/1,
@@ -16,22 +16,24 @@
         ]).
 
 -record(state, {
+          table,
           clean_interval
          }).
 
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+start_link(Table, CleanInterval) ->
+    gen_server:start_link(?MODULE, [Table, CleanInterval], []).
 
-init([]) ->
-    CleanInterval = case application:get_env(clean_interval) of
-                        undefined ->
-                            600*1000;
-                        {ok, Val} ->
-                            Val*1000
-                    end,
+init([Table, CleanInterval]) ->
+    ets:new(Table, [
+                    named_table, 
+                    public,
+                    {read_concurrency, true},
+                    {write_concurrency, true}
+                   ]),
     erlang:send_after(CleanInterval, self(), cleanup),    
     %% error_logger:info_msg("CleanInterval ~p~n", [CleanInterval]),
     {ok, #state{
+            table = Table,
             clean_interval = CleanInterval
            }}.
 
@@ -42,6 +44,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info(cleanup, #state{
+                        table = Table,
                         clean_interval = CleanInterval
                        } = State) ->
     Now = ets_cache:unixtime(),
@@ -50,7 +53,7 @@ handle_info(cleanup, #state{
            fun({_, _, Timeout}) when is_integer(Timeout)->
                    Timeout =< Now
            end),
-    ets:select_delete(?CACHE_DATA_TABLE, MS),
+    ets:select_delete(Table, MS),
     erlang:send_after(CleanInterval, self(), cleanup),
     {noreply, State};
 

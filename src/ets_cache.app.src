@@ -10,6 +10,6 @@
                  ]},
   {mod, { ets_cache_app, []}},
   {env, [
-         {clean_interval, 600}
+         {clean_interval, 300} %% 每5min清理一次
         ]}
  ]}.
