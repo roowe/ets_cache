@@ -4,7 +4,8 @@
 -include("ets_cache.hrl").
 
 -export([
-         start_link/2
+         start_link/2,
+         get_table/1
         ]).
 -export([
          init/1,
@@ -19,6 +20,9 @@
           table,
           clean_interval
          }).
+
+get_table(Pid) ->
+    gen_server:call(Pid, get_table).
 
 start_link(Table, CleanInterval) ->
     gen_server:start_link(?MODULE, [Table, CleanInterval], []).
@@ -36,7 +40,8 @@ init([Table, CleanInterval]) ->
             table = Table,
             clean_interval = CleanInterval
            }}.
-
+handle_call(get_table, _From, State) ->
+    {reply, State#state.table, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 

@@ -21,6 +21,8 @@
 %% 内部函数
 -export([unixtime/0]).
 
+-export([all_tables/0]).
+
 -include("ets_cache.hrl").
 
 -define(DEFAULT_EXPIRATION, 300).
@@ -104,7 +106,11 @@ del(ETSTable, Key) ->
     true = ets:delete(ETSTable, Key),
     ok.
 
+all_tables() ->
+    [ets_cache_manager:get_table(Pid) || {_, Pid, _, _} <- ets_cache_manager_sup:which_children()].
+
 %% 取得当前的unix时间戳，秒级
 unixtime() ->
     {M, S, _} = os:timestamp(),
     M * 1000000 + S.
+

@@ -9,6 +9,7 @@
 
 -export([start_child/2]).
 
+-export([which_children/0]).
 %% Supervisor callbacks
 -export([init/1]).
 
@@ -23,6 +24,9 @@ start_link() ->
 
 start_child(Table, CleanInterval) ->
     supervisor:start_child(?MODULE, [Table, CleanInterval*1000]).
+
+which_children() ->    
+    supervisor:which_children(ets_cache_manager_sup).
 
 %% ===================================================================
 %% Supervisor callbacks

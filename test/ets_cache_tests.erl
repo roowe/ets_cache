@@ -11,7 +11,7 @@ start() ->
 all_test_() ->
     start(),
     [get_and_set(), ttl_die(), ttl_live(), get_with_default(),
-     get_and_set2(), ttl_die2(), ttl_live2(), get_with_default2()].
+     get_and_set2(), ttl_die2(), ttl_live2(), get_with_default2(), all_tables()].
 
 get_and_set() ->
     [?_assertEqual([], ets_cache:get(test_key)),
@@ -61,3 +61,6 @@ get_with_default2() ->
         end,
    [?_assertEqual(1, ets_cache:get_with_default(test_cache_table, get_with_default, F)),
     ?_assertEqual(1, ets_cache:get(test_cache_table, get_with_default))].
+
+all_tables() ->
+    [?_assertEqual(lists:sort([test_cache_table, cache_data_table]),  lists:sort(ets_cache:all_tables()))].
