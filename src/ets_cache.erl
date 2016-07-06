@@ -15,7 +15,7 @@
          set_t/3, set_t/4, set_t_inf/3,
          get/1, get/2,
          get_with_default/2, get_with_default/3,
-         del/1, del/2
+         del/1, del/2, match_key_delete/2, match_key_delete/1
         ]).
 
 %% 内部函数
@@ -106,6 +106,13 @@ del(ETSTable, Key) ->
     true = ets:delete(ETSTable, Key),
     ok.
 
+match_key_delete(MatchKey) ->
+    match_key_delete(?CACHE_DATA_TABLE, MatchKey).
+
+match_key_delete(ETSTable, MatchKey) ->
+    true = ets:match_delete(ETSTable, {MatchKey, '_', '_'}),
+    ok.
+    
 all_tables() ->
     [ets_cache_manager:get_table(Pid) || {_, Pid, _, _} <- ets_cache_manager_sup:which_children()].
 
